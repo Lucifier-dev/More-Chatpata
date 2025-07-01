@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>More Chatpata - Buy Namkeen</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: orange; color: white; padding: 10px; text-align: center; }
+    .products { display: flex; flex-wrap: wrap; justify-content: center; margin: 20px; }
+    .product { border: 1px solid #ddd; border-radius: 5px; margin: 10px; padding: 10px; width: 200px; text-align: center; }
+    .product img { width: 100%; height: auto; }
+    button { background: #ff6600; color: white; border: none; padding: 10px; cursor: pointer; margin-top: 5px; }
+    button:hover { background: #ff3300; }
+    .cart { margin: 20px; }
+    .checkout-form { max-width: 400px; margin: 20px auto; border: 1px solid #ddd; padding: 20px; }
+    .checkout-form input, .checkout-form textarea { width: 100%; padding: 10px; margin: 5px 0; }
+    .upi-details { text-align: center; margin: 20px; display:none; }
+    .upi-details img { max-width: 200px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>More Chatpata Namkeen</h1>
+  </header>
+
+  <section class="products">
+    <div class="product">
+      <img src="https://via.placeholder.com/200x150.png?text=Sev" alt="Sev"/>
+      <h3>Sev</h3>
+      <p>₹50</p>
+      <button onclick="addToCart('Sev',50)">Add to Cart</button>
+    </div>
+    <div class="product">
+      <img src="https://via.placeholder.com/200x150.png?text=Mixture" alt="Mixture"/>
+      <h3>Mixture</h3>
+      <p>₹60</p>
+      <button onclick="addToCart('Mixture',60)">Add to Cart</button>
+    </div>
+    <div class="product">
+      <img src="https://via.placeholder.com/200x150.png?text=Bhujia" alt="Bhujia"/>
+      <h3>Bhujia</h3>
+      <p>₹40</p>
+      <button onclick="addToCart('Bhujia',40)">Add to Cart</button>
+    </div>
+  </section>
+
+  <section class="cart">
+    <h2>Shopping Cart</h2>
+    <ul id="cart-items"></ul>
+    <p><strong>Total: ₹<span id="total">0</span></strong></p>
+  </section>
+
+  <section class="checkout-form">
+    <h2>Checkout</h2>
+    <form id="orderForm">
+      <label>Name</label>
+      <input type="text" id="custName" required>
+      <label>Email</label>
+      <input type="email" id="custEmail" required>
+      <label>Phone</label>
+      <input type="text" id="custPhone" required>
+      <label>Address</label>
+      <textarea id="custAddress" required></textarea>
+      <button type="submit">Place Order</button>
+    </form>
+  </section>
+
+  <section class="upi-details" id="upiSection">
+    <h2>Pay via UPI</h2>
+    <p>Send payment to:</p>
+    <h3>9205070167@upi</h3>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=9205070167@upi&pn=More%20Chatpata&am=0" alt="UPI QR"/>
+    <p><strong>Note:</strong> Please enter the above UPI ID or scan QR to pay. Confirm payment to finalize your order.</p>
+  </section>
+
+  <!-- hidden HTML form to post to Google Form -->
+  <form id="hiddenGoogleForm" action="https://docs.google.com/forms/d/e/1FAIpQLSfV6YUULz6BXAUvNhrGnMfnB6ZF3Cyz3B9d9-CSnNBtdVtJKA/formResponse" method="POST" target="hidden_iframe" style="display:none;">
+    <input name="entry.1111111111" id="gName">
+    <input name="entry.2222222222" id="gEmail">
+    <input name="entry.3333333333" id="gPhone">
+    <input name="entry.4444444444" id="gAddress">
+    <input name="entry.5555555555" id="gProducts">
+    <input name="entry.6666666666" id="gTotal">
+  </form>
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+  <script>
+    let cart = [];
+    function addToCart(name, price) {
+      cart.push({name, price});
+      displayCart();
+    }
+    function displayCart() {
+      const list = document.getElementById("cart-items");
+      const total = document.getElementById("total");
+      list.innerHTML = "";
+      let sum = 0;
+      cart.forEach(item => {
+        list.innerHTML += `<li>${item.name} - ₹${item.price}</li>`;
+        sum += item.price;
+      });
+      total.textContent = sum;
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      let name = document.getElementById("custName").value;
+      let email = document.getElementById("custEmail").value;
+      let phone = document.getElementById("custPhone").value;
+      let address = document.getElementById("custAddress").value;
+      let products = cart.map(i => i.name + " (₹" + i.price + ")").join(", ");
+      let totalAmount = document.getElementById("total").textContent;
+
+      // assign values to hidden form
+      document.getElementById("gName").value = name;
+      document.getElementById("gEmail").value = email;
+      document.getElementById("gPhone").value = phone;
+      document.getElementById("gAddress").value = address;
+      document.getElementById("gProducts").value = products;
+      document.getElementById("gTotal").value = totalAmount;
+
+      // submit hidden form to Google Sheets
+      document.getElementById("hiddenGoogleForm").submit();
+
+      alert("Order details saved, please proceed to pay via UPI.");
+      document.getElementById("upiSection").style.display = "block";
+    });
+  </script>
+</body>
+</html>
